@@ -1,125 +1,78 @@
 ﻿using System;
+using System.Net;
 using System.Net.Sockets;
-using System.Text;
+using System.Threading;
 
-namespace WebServer
+namespace Webs
 {
-    class Program
+    class MainClass
     {
-        static string HOST = "127.0.0.1";
-        static int PORT = 8000;
 
-        static TcpClient client;
-
-
-        static void OpenConnection()
+        public static void Main(string[] args)
         {
-            if (client != null)
-            {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("---Connection is already open---");
-            }
-            else
-            {
-                try
-                {
-                    client = new TcpClient();
-                    client.Connect(HOST, PORT);
-                    Console.ForegroundColor = ConsoleColor.Green;
-                    Console.WriteLine("Client is connected");
-
-                }
-                catch (Exception ex)
-                {
-                    client = null;
-                    Console.ForegroundColor = ConsoleColor.Red;
-                    Console.WriteLine("Error : " + ex.Message);
-                }
-            }
-        }
+            //creation du socket server
 
 
-        static void CloseConnection()
-        {
-            if (client == null)
-            {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("Connection is not open or already closed");
-                return;
-            }
+            Socket listenerSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+            IPEndPoint ipEnd = new IPEndPoint(IPAddress.Parse("192.168.70.51"), 8880);
+            listenerSocket.Bind(ipEnd);
 
-            try
+
+
+
+            while (true)
             {
-                client.Close();
+                listenerSocket.Listen(0);
+                Socket clienSocket = listenerSocket.Accept();
+
+
+                //multi client
+                Thread clientThread = new Thread(() => ClientConnecte(clienSocket));
+                clientThread.Start();
 
             }
-            catch (Exception)
-            {
-
-
-            }
-            finally
-            {
-                client = null;
-            }
-
-
-            Console.ForegroundColor = ConsoleColor.Yellow;
-            Console.WriteLine("Connection closed suuccesfull");
 
         }
 
 
-        static void SendData(string data)
+        //method de connection call by thread
+
+        private static void ClientConnecte(Socket clienSocket)
         {
-            if (client == null)
-            {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("Connection is altready closed");
-                return;
-            }
+            //taille  en byte du message 
+            byte[] buffer = new byte[clienSocket.ReceiveBufferSize];
 
-            //send
-            NetworkStream stream = client.GetStream();
-            byte[] byteToSend = ASCIIEncoding.ASCII.GetBytes(data);
-            Console.ForegroundColor = ConsoleColor.Yellow;
-            Console.WriteLine("Sending : " + data);
 
-            stream.Write(byteToSend, 0, byteToSend.Length);
 
-            //receive
-            byte[] byteToRead = new byte[client.ReceiveBufferSize];
-            int byteRead = stream.Read(byteToRead, 0, client.ReceiveBufferSize);
-            Console.ForegroundColor = ConsoleColor.Cyan;
-            Console.WriteLine("Received : " + Encoding.ASCII.GetString(byteToRead, 0, byteRead));
-
-        }
-
-        static void Main(string[] args)
-        {
-            string lineRead;
+            int readAllByte;
 
             do
             {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("\n\n Enter option (1-Open, 2-Send, 3-Close, 4-Q)");
-                lineRead = Console.ReadLine();
-                switch (lineRead)
-                {
-                    case "1":
-                        OpenConnection();
-                        break;
-                    case "2":
-                        Console.WriteLine("Enter data to send");
-                        string data = Console.ReadLine();
-                        SendData(data);
-                        break;
-                    case "3":
-                        CloseConnection();
-                        break;
-                }
+                //Entrer du mlessage en byte
+                readAllByte = clienSocket.Receive(buffer);
 
-            } while (!lineRead.Equals("4"));
+                //preparattion d'une copy
+                byte[] readData = new byte[readAllByte];
+
+
+                //copy et convertion du message en form originel
+                Array.Copy(buffer, readData, readAllByte);
+
+
+                //affichage a la console
+                Console.WriteLine("From client: {0}", System.Text.Encoding.UTF8.GetString(readData));
+
+
+                //piuggyback data
+                var sendMessage = Console.ReadLine();
+                clienSocket.Send(System.Text.Encoding.UTF8.GetBytes(sendMessage));
+
+            } while (readAllByte > 0);
+
+
+            //en dehors de boucle le client est deconnecte
+            Console.WriteLine("Client disconneted");
+            Console.ReadKey();
         }
     }
 }
