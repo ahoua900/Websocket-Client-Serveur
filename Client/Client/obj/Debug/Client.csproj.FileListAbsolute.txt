@@ -1,0 +1,6 @@
+/Users/nan/Projects/Client/Client/bin/Debug/Client.exe
+/Users/nan/Projects/Client/Client/bin/Debug/Client.pdb
+/Users/nan/Projects/Client/Client/obj/Debug/Client.csprojAssemblyReference.cache
+/Users/nan/Projects/Client/Client/obj/Debug/Client.csproj.CoreCompileInputs.cache
+/Users/nan/Projects/Client/Client/obj/Debug/Client.exe
+/Users/nan/Projects/Client/Client/obj/Debug/Client.pdb
