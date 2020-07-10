@@ -1,0 +1,6 @@
+/Users/nan/Projects/Webs/Webs/bin/Debug/Webs.exe
+/Users/nan/Projects/Webs/Webs/bin/Debug/Webs.pdb
+/Users/nan/Projects/Webs/Webs/obj/Debug/Webs.csproj.CoreCompileInputs.cache
+/Users/nan/Projects/Webs/Webs/obj/Debug/Webs.exe
+/Users/nan/Projects/Webs/Webs/obj/Debug/Webs.pdb
+/Users/nan/Projects/Webs/Webs/obj/Debug/Webs.csprojAssemblyReference.cache
